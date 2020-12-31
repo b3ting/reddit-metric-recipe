@@ -1,6 +1,7 @@
 import os
 import html
 import requests
+from difflib import SequenceMatcher
 from dotenv import load_dotenv
 import praw
 from bs4 import BeautifulSoup
@@ -19,13 +20,14 @@ def main():
     )
 
     print("Checking for new submissions to convert...")
-    for submission in reddit.subreddit("cooking").new(limit=10):
+    for submission in reddit.subreddit("cooking").new(limit=20):
         if not submission.saved:
             submission.save()
             metric_recipe = convert_US_to_metric(submission.selftext)
 
-            if submission.selftext != metric_recipe:
-                print("Posting with recipe in metric units")
+            similarity = SequenceMatcher(None, submission.selftext, metric_recipe).ratio()
+            if similarity < 0.95:
+                print("Posting with recipe in metric units", submission.permalink)
                 reddit_reply = """**Copy of original post in metric units**  ^([more info](https://github.com/b3ting/reddit-metric-recipe))\n\n%s
                 """ % metric_recipe
 

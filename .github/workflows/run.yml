@@ -1,6 +1,8 @@
 name: Run metric recipe bot
 
-on: [push]
+on:
+  schedule:
+    - cron: "44 */1 * * *"
 
 jobs:
   build:
