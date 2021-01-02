@@ -20,7 +20,7 @@ def main():
     )
 
     print("Checking for new submissions to convert...")
-    for submission in reddit.subreddit("cooking").new(limit=20):
+    for submission in reddit.subreddit("recipes").new(limit=20):
         if not submission.saved:
             submission.save()
             metric_recipe = convert_US_to_metric(submission.selftext)
