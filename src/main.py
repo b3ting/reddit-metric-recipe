@@ -20,19 +20,22 @@ def main():
     )
 
     print("Checking for new submissions to convert...")
-    for submission in reddit.subreddit("recipes").new(limit=20):
-        if not submission.saved:
-            submission.save()
-            metric_recipe = convert_US_to_metric(submission.selftext)
+    for submission in reddit.subreddit("recipes").new(limit=6):
+        submission.comments.replace_more(limit=0)
+        for top_level_comment in submission.comments:
+            if not top_level_comment.saved:
+                top_level_comment.save()
+                metric_recipe = convert_US_to_metric(top_level_comment.body)
 
-            similarity = SequenceMatcher(None, submission.selftext, metric_recipe).ratio()
-            if similarity < 0.95:
-                print("Posting with recipe in metric units", submission.permalink)
-                reddit_reply = """**Copy of original post in metric units**  ^([more info](https://github.com/b3ting/reddit-metric-recipe))\n\n%s
-                """ % metric_recipe
+                similarity = SequenceMatcher(None, top_level_comment.body, metric_recipe).ratio()
+                print(similarity)
+                if similarity < 0.90:
+                    print("Posting with recipe in metric units", submission.permalink)
+                    reddit_reply = """**Copy of original post in metric units**  ^([more info](https://github.com/b3ting/reddit-metric-recipe))\n\n%s
+                    """ % metric_recipe
 
-                print(reddit_reply)
-                submission.reply(body=str(reddit_reply))
+                    print(reddit_reply)
+                    top_level_comment.reply(body=str(reddit_reply))
 
 def convert_US_to_metric(recipe_us):
     response = requests.post('https://convertrecipe.com/convert_US_to_metric.php', data=dict(recipe=recipe_us))
