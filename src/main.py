@@ -20,7 +20,7 @@ def main():
     )
 
     print("Checking for new submissions to convert...")
-    for submission in reddit.subreddit("recipes").new(limit=6):
+    for submission in reddit.subreddit("EatCheapAndHealthy").new(limit=6):
         submission.comments.replace_more(limit=0)
         for top_level_comment in submission.comments:
             if not top_level_comment.saved:
